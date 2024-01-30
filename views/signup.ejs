@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div class="container mx-auto py-8">
+        <div class="grid grid-cols-6">
+            <div class="col-start-3 col-span-2 bg-white border-gray-300 border mr-4 rounded" style="padding: 20px">
+                <%- include('header.ejs') %>
+                    <h6 class="py-4 text-center">Signup as a new user</h6>
+                    <form>
+                        <div class="py-3">
+                            <label for="">First Name</label>
+                            <input type="text" name="firstName" id=""
+                                class="border border-gray-300 text-gray-900 rounded p-2 w-full" required>
+                        </div>
+                        <div class="py-3">
+                            <label for="">Last Name</label>
+                            <input type="text" name="lastName" id=""
+                                class="border border-gray-300 text-gray-900 rounded p-2 w-full">
+                        </div>
+                        <div class="py-3">
+                            <label for="">Email</label>
+                            <input type="email" name="email" id=""
+                                class="border border-gray-300 text-gray-900 rounded p-2 w-full" required>
+                        </div>
+                        <div class="py-3">
+                            <label for="">Password</label>
+                            <input type="password" name="password" id=""
+                                class="border border-gray-300 text-gray-900 rounded p-2 w-full" required>
+                        </div>
+                        <div class="py-3">
+                            <button type="submit"
+                                class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2 mx-auto block">SignUp</button>
+                        </div>
+                    </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
