@@ -20,6 +20,25 @@ app.get("/signup", (req,res) => {
     })
 })
 
+app.post("/users", async (req, res) => {
+    try {
+      const user = await User.create({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: hashedPwd,
+      });
+      req.login(user, (err) => {
+        if (err) {
+          console.log(err)
+        }
+        res.redirect("/home");
+      })
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
 app.get("/signin", (req,res) => {
     res.render("signin", {
         title: "SingIn"
@@ -47,12 +66,20 @@ app.get("/reports", (req,res) => {
 res.render("reports")
 })
 
+app.get("/chapter", (req,res) => {
+  res.render("chapter")
+})
+
 app.get("/newCourse", (req,res) => {
 res.render("newCourse")
 })
 
-app.get("/newCourse", (req,res) => {
-    res.render("newCourse")
+app.get("/newChapter", (req,res) => {
+    res.render("newChapter")
+})
+
+app.get("/newPage", (req,res) => {
+  res.render("newPage")
 })
 
 module.exports = app
