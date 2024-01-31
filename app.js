@@ -70,6 +70,10 @@ app.get("/chapter", (req,res) => {
   res.render("chapter")
 })
 
+app.get("/page", (req,res) => {
+  res.render("page")
+})
+
 app.get("/newCourse", (req,res) => {
 res.render("newCourse")
 })
