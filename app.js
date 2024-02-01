@@ -180,6 +180,56 @@ app.post("/newCourse", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   }
 })
 
+app.get("/updateCourse/:courseId/edit", async (req,res) => {
+  const courseId = req.params.courseId
+  try{
+    const courses = await Course.courseById(courseId)
+    const course = courses[0]
+    const loggedInUser = req.user.id
+    const users = await User.userById(loggedInUser)
+    const user = users[0]
+    const isEducator = user.isEducator
+    if(isEducator) {
+      res.render("updateCourse", {
+        course
+      })
+    } else {
+      console.log("Your are not a authorized user to update the Course")
+      res.status(500).send("Error fetching course");
+    }
+  } catch(err) {
+    console.error("Error fetching course:", err);
+    console.log(err)
+    res.status(500).send("Error fetching course");
+  }
+})
+
+app.post("/updateCourse/:courseId/edit", async (req,res) => {
+  const courseId = req.params.courseId
+  const courseName = req.body.courseName
+  const courseDescription = req.body.description
+  try{
+    const existingCourse = await Course.findOne({ where: { courseName } });
+    if (existingCourse) {
+        return res.status(400).send("Course name already exists. Please choose a different name.");
+    }
+    await Course.update({
+      courseName,
+      courseDescription
+    },
+      {
+        where: {
+          id: courseId
+        }
+      }
+    )
+    res.redirect(`/course/${courseId}`)
+  } catch(err) {
+    console.log("Error editing course: ",err)
+    res.status(500).send("Error editing course")
+  }
+})
+
 app.get("/reports", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
   res.render("reports")
 })
