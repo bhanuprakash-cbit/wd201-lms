@@ -58,7 +58,7 @@ passport.deserializeUser((id, done) => {
     });
 });
 
-const { User } = require("./models")
+const { User, Course } = require("./models")
 
 app.set("views", path.join(__dirname, "views"))
 
