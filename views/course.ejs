@@ -4,28 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>
+        <%= course.courseName %>
+    </title>
     <link rel="stylesheet" href="./css/style.css" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body>
     <div class="px-10 py-4 font-bold">
-        <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course" class="px-1 underline">Course
-                Title</a>
+        <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course/<%= course.id %>"
+                class="px-1 underline">
+                <%= course.courseName %>
+            </a>
         </p>
     </div>
     <div class="py-5">
         <div class="flex flex-wrap justify-center gap-4">
             <div class="w-auto p-4 bg-gray-100 rounded-lg shadow-md">
                 <div class="flex items-center justify-center mb-4">
-                    <h2 class="text-2xl font-semibold mb-2">Course Title</h2>
+                    <h2 class="text-2xl font-semibold mb-2">
+                        <%= course.courseName %>
+                    </h2>
                 </div>
                 <div class="space-y-2">
                     <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
-                        <p>Course Description</p>
-                        <p>Course Designer</p>
-                        <p>Number of Chapters: X</p>
+                        <p>
+                            <%= course.courseDescription %>
+                        </p>
+                        <p>Number of Chapters: <%= course.chapterCount %>
+                        </p>
                     </div>
                     <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
                         <p class="py-1">
@@ -37,32 +45,44 @@
                                 class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Chapter
                                 2</a></p>
                     </div>
-                    <div class="py-2">
+                    <% if(isEducator) {%>
                         <div class="py-2">
-                            <button type="button"
-                                class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Edit
-                                course</button>
-                        </div>
-                        <div>
-                            <form action="">
+                            <div class="py-2">
                                 <button type="button"
-                                    class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
-                                    Delete course</button>
-                            </form>
+                                    class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Edit
+                                    course</button>
+                            </div>
+                            <div>
+                                <form action="/course/<%= course.id %>/delete" method="POST">
+                                    <button type="submit" class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
+                                        Delete course
+                                    </button>
+                                </form>
+                                
+                            </div>
                         </div>
-                    </div>
-
+                        <% } %>
+                            <% if(!(isEducator)) { %>
+                                <div class="py-2">
+                                    <button type="button"
+                                        class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Enroll
+                                        to view Content</button>
+                                </div>
+                                <% } %>
                 </div>
             </div>
 
         </div>
     </div>
-    <div class="flex justify-center">
-        <a href="/newChapter"
-            class="text-white bg-green-600 hover:bg-green-800 font-medium rounded mx-auto px-5 py-2 block">Create a new
-            Chapter</a>
-    </div>
-    </div>
+    <% if(isEducator) { %>
+        <div class="flex justify-center">
+            <a href="/newChapter"
+                class="text-white bg-green-600 hover:bg-green-800 font-medium rounded mx-auto px-5 py-2 block">Create a
+                new
+                Chapter</a>
+        </div>
+        <% } %>
+            </div>
 </body>
 
 </html>

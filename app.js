@@ -84,10 +84,15 @@ app.post("/users", async (req, res) => {
   console.log(req.body.password)
   try {
     const user = await User.create({
+      // firstName: "Virat",
+      // lastName: "Kohli",
+      // email: "virat@kohli.com",
+      // password: "Virat@18",
+      // isEducator: true
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      password: req.body.password,
+      password: req.body.password
     });
     req.login(user, (err) => {
       if (err) {
@@ -102,7 +107,7 @@ app.post("/users", async (req, res) => {
 
 app.get("/login", (req,res) => {
     res.render("login", {
-        title: "SingIn"
+        title: "LogIn"
     })
 })
 
@@ -118,20 +123,67 @@ app.get("/signout", (req,res,next) => {
     })
 })
 
-app.get("/home", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-    res.render("home")
+app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const loggedInUser = req.user.id
+  const isEducator = req.user.isEducator
+  const myCourses = await Course.myCourses(loggedInUser)
+  const allCourses = await Course.allCourses()
+    res.render("home", {
+      title: "LMS Application",
+      myCourses,
+      allCourses,
+      isEducator,
+    })
 })
 
-app.get("/course", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-res.render("course", {
-    chapters: "Chapter 1"
+app.get("/course/:courseId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const courseId = req.params.courseId
+  console.log(courseId)
+  try{
+    const courses = await Course.courseById(courseId)
+    const course = courses[0]
+    const loggedInUser = req.user.id
+    const users = await User.userById(loggedInUser)
+    const user = users[0]
+    const isEducator = user.isEducator
+    res.render("course", {
+      course,
+      isEducator
+    })
+  } catch(err) {
+    console.error("Error fetching course:", err);
+    console.log(err)
+    res.status(500).send("Error fetching course");
+  }
+  
 })
+
+
+app.get("/newCourse", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
+res.render("newCourse")
+})
+
+app.post("/newCourse", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  console.log(req.body)
+  const loggedInUser = req.user.id
+  try{
+    await Course.addCourse({
+      courseName: req.body.courseName,
+      courseDescription: req.body.courseDescription,
+      educatorId: loggedInUser
+    })
+    console.log(Course.allCourses())
+    return res.redirect("/home")
+  } catch(err) {
+    console.log(err)
+    return res.status(422).json(err)
+  }
 })
 
 app.get("/reports", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-res.render("reports")
+  res.render("reports")
 })
-
+  
 app.get("/chapter", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
   res.render("chapter")
 })
@@ -139,17 +191,29 @@ app.get("/chapter", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
 app.get("/page", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
   res.render("page")
 })
-
-app.get("/newCourse", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-res.render("newCourse")
-})
-
+  
 app.get("/newChapter", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-    res.render("newChapter")
+  res.render("newChapter")
 })
 
 app.get("/newPage", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
   res.render("newPage")
 })
+
+app.post("/course/:courseId/delete", async (req, res) => {
+  const courseId = req.params.courseId;
+  const loggedInUser = req.user.id
+  try {
+      await Course.deleteCourse({
+          id: courseId,
+          educatorId: loggedInUser
+      });
+      res.redirect("/home");
+  } catch (error) {
+      console.error("Error deleting course:", error);
+      res.status(500).send("Error deleting course");
+  }
+});
+
 
 module.exports = app
