@@ -11,7 +11,38 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+
     }
+
+    static addChapter({ chapterName, chapterDescription, courseId }) {
+      return this.create({ chapterName: chapterName, chapterDescription: chapterDescription, courseId: courseId })
+    } 
+    
+    static async deleteChapter({ id, courseId }) {
+      return this.destroy({
+        where: {
+          id,
+          courseId: courseId
+        }
+      })
+    }
+
+    static allChapters(courseId) {
+      return this.findAll({
+        where: {
+          courseId: courseId,
+        }
+      })
+    }
+
+    static chapterById(chapterId) {
+      return this.findAll({
+        where: {
+          id: chapterId
+        }
+      })
+    }
+    
   }
   Chapter.init({
     chapterName: DataTypes.STRING,

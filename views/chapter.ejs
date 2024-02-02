@@ -10,52 +10,68 @@
 </head>
 
 <body>
-    <div class="px-10 py-4 font-bold">
-        <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course" class="px-1 underline">Course
-                Title</a>-><a href="/chapter" class="px-1 underline">Chapter name</a>
-        </p>
-    </div>
-    <div class="py-5">
-        <div class="flex flex-wrap justify-center gap-4">
-            <div class="w-auto p-4 bg-gray-100 rounded-lg shadow-md">
-                <div class="flex items-center justify-center mb-4">
-                    <h2 class="text-2xl font-semibold mb-2 underline">Course Title</h2>
-                </div>
-                <div class="flex items-center justify-center mb-4">
-                    <h2 class="text-2xl font-semibold mb-2">Chapter name</h2>
-                </div>
-                <div class="space-y-2">
-                    <h2 class="text-2xl text-center font-semibold mb-2">Pages</h2>
-                    <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
-                        <p class="py-1">
-                            <a href="/page"
-                                class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Page
-                                1</a>
-                        </p>
-                        <p class="py-1"><a href="/page"
-                                class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Page
-                                2</a></p>
-                    </div>
-                    <div class="py-2">
-                        <button type="button"
-                            class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Edit
-                            chapter</button>
-                    </div>
-                    <div>
-                        <form action="">
-                            <button type="button"
-                                class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
-                                Delete chapter</button>
-                        </form>
+    <div>
+        <% if(isEducator) { %>
+            <div class="px-10 py-4 font-bold">
+                <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course/<%= course.id %>"
+                        class="px-1 underline">
+                        <%= course.courseName %>
+                    </a>-><a href="/chapter/<%= chapter.id %>" class="px-1 underline">
+                        <%= chapter.chapterName %>
+                    </a>
+                </p>
+            </div>
+            <div class="py-5">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="w-auto p-4 bg-gray-100 rounded-lg shadow-md">
+                        <div class="flex items-center justify-center mb-4">
+                            <h2 class="text-2xl font-semibold mb-2 underline">
+                                <%= course.courseName %>
+                            </h2>
+                        </div>
+                        <div class="flex items-center justify-center mb-4">
+                            <h2 class="text-2xl font-semibold mb-2">
+                                <%= chapter.chapterName %>
+                            </h2>
+                        </div>
+                        <div class="space-y-2">
+                            <h2 class="text-2xl text-center font-semibold mb-2">Pages</h2>
+                            <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
+                                <p class="py-1">
+                                    <a href="/page"
+                                        class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Page
+                                        1</a>
+                                </p>
+                                <p class="py-1"><a href="/page"
+                                        class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Page
+                                        2</a></p>
+                            </div>
+                            <div class="py-2">
+                                <p
+                                    class="flex justify-center text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block text-center">
+                                    <a href="/updateChapter/<%= chapter.id %>/edit">Edit
+                                        Chapter</a>
+                                </p>
+                            </div>
+                            <div>
+                                <form action="/chapter/<%= chapter.id %>/delete" method="post">
+                                    <button type="submit"
+                                        class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
+                                        Delete Chapter</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="flex justify-center">
-        <a href="/newPage"
-            class="text-white bg-green-600 hover:bg-green-800 font-medium rounded mx-auto px-5 py-2 block">Create a new
-            Page</a>
+            <div class="flex justify-center">
+                <a href="/newPage"
+                    class="text-white bg-green-600 hover:bg-green-800 font-medium rounded mx-auto px-5 py-2 block">Create
+                    a
+                    new
+                    Page</a>
+            </div>
+            <% } %>
     </div>
 </body>
 

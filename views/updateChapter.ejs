@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div>
+        <div class="container mx-auto py-8">
+            <div class="px-10 font-bold">
+                <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course/<%= course.id %>"
+                        class="px-1 underline">
+                        <%= course.courseName %>
+                    </a>-><a href="/chapter/<%= chapter.id %>" class="px-1 underline">
+                        <%= chapter.chapterName %>
+                    </a>-><a href="/updateChapter/<%= chapter.id %>/edit" class="px-1 underline">Edit Chapter</a></p>
+            </div>
+            <div class="grid grid-cols-6">
+                <div class="col-start-3 col-span-2 bg-white border-gray-300 border mr-4 rounded" style="padding: 20px">
+                    <p class="text-center text-3xl font-bold">Updating Chapter</p>
+                    <form action="/updateChapter/<%= chapter.id %>/edit" method="post">
+                        <div class="py-3">
+                            <label for="">Chapter Name</label>
+                            <input type="text" name="chapterName"
+                                class="border border-gray-300 text-gray-900 rounded p-2 w-full" required
+                                placeholder="Updating Chapter Name should not match with older one">
+                        </div>
+                        <div class="py-3">
+                            <label for="">Chapter Description</label>
+                            <input type="text" name="chapterDescription"
+                                class="border border-gray-300 text-gray-900 rounded p-2 w-full" required
+                                placeholder="Updating description should not match with older one">
+                        </div>
+                        <div class="py-3">
+                            <button type="submit"
+                                class="text-white bg-green-600 hover:bg-green-800 font-medium rounded px-5 py-2 mx-auto block">Update
+                                Chapter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

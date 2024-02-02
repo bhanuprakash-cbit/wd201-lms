@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      
     }
 
     static addCourse({ courseName, courseDescription,educatorId }) {
@@ -44,15 +45,6 @@ module.exports = (sequelize, DataTypes) => {
 
     static allCourses() {
       return this.findAll()
-    }
-
-    static async remove(id, loggedInUser) {
-      return this.destroy({
-        where: {
-          id,
-          educatorId: loggedInUser,
-        }
-      })
     }
   }
   Course.init({
