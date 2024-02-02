@@ -37,14 +37,14 @@
                         <div class="space-y-2">
                             <h2 class="text-2xl text-center font-semibold mb-2">Pages</h2>
                             <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
-                                <p class="py-1">
-                                    <a href="/page"
-                                        class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Page
-                                        1</a>
-                                </p>
-                                <p class="py-1"><a href="/page"
-                                        class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Page
-                                        2</a></p>
+                                <% for(var i=0; i<allPages.length; i++) { %>
+                                    <p class="py-1">
+                                        <a href="/page/<%= allPages[i].id %>"
+                                            class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">
+                                            <%= allPages[i].pageName %>
+                                        </a>
+                                    </p>
+                                    <% } %>
                             </div>
                             <div class="py-2">
                                 <p
@@ -65,7 +65,7 @@
                 </div>
             </div>
             <div class="flex justify-center">
-                <a href="/newPage"
+                <a href="/newPage/<%= chapter.id %>"
                     class="text-white bg-green-600 hover:bg-green-800 font-medium rounded mx-auto px-5 py-2 block">Create
                     a
                     new

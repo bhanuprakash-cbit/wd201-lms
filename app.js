@@ -274,11 +274,12 @@ app.get("/chapter/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,r
     const users = await User.userById(loggedInUser)
     const user = users[0]
     const isEducator = user.isEducator
-    //const allPages = await Page.allPages(chapterId)
+    const allPages = await Page.chapterPages(chapterId)
     if(isEducator) {
       res.render("chapter", {
         chapter,
         course,
+        allPages,
         isEducator
       })
     } else {
@@ -372,27 +373,35 @@ app.get("/updateChapter/:chapterId/edit", connectEnsureLogin.ensureLoggedIn(), a
 
 app.post("/updateChapter/:chapterId/edit", async (req,res) => {
   const chapterId = req.params.chapterId
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
   const chapterName = req.body.chapterName
   const chapterDescription = req.body.chapterDescription
   try{
-    const existingChapter = await Chapter.findOne({ where: { chapterName } });
-    if (existingChapter) {
-        return res.status(400).send("Chapter name already exists. Please choose a different name.");
-    }
-    await Chapter.update({
-      chapterName,
-      chapterDescription
-    },
-      {
-        where: {
-          id: chapterId
-        }
+    if(user.isEducator){
+      const existingChapter = await Chapter.findOne({ where: { chapterName } });
+      if (existingChapter) {
+          return res.status(400).send("Chapter name already exists. Please choose a different name.");
       }
-    )
-    res.redirect(`/chapter/${chapterId}`)
+      await Chapter.update({
+        chapterName,
+        chapterDescription
+      },
+        {
+          where: {
+            id: chapterId
+          }
+        }
+      )
+      res.redirect(`/chapter/${chapterId}`)
+    } else{
+      console.log("Not an authorized person to update the chapter")
+      res.status(500).send("Error updating chapter")
+    }
   } catch(err) {
     console.log("Error editing chapter: ",err)
-    res.status(500).send("Error editing chapter")
+    res.status(500).send("Error updating chapter")
   }
 })
 
@@ -440,12 +449,149 @@ app.get("/reports", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
   res.render("reports")
 })
 
-app.get("/page", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-  res.render("page")
+app.get("/page/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const pageId = req.params.pageId
+  const pages = await Page.pageById(pageId)
+  const page = pages[0]
+  const courses = await Course.courseById(page.courseId)
+  const course = courses[0]
+  const chapters = await Chapter.chapterById(page.chapterId)
+  const chapter = chapters[0]
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
+  const isEducator = user.isEducator
+  try{
+    if(isEducator){
+      res.render("page", {
+        page,
+        chapter,
+        course,
+        isEducator
+      })
+    }else{
+      console.log("Your are not a authorized user to update the Chapter")
+      res.status(500).send("Error fetching page");
+    }
+  } catch(err) {
+    console.log("Error retrieving the page: ",err)
+    res.status(500).send("Error fetching page");
+  }
+  
 })
 
-app.get("/newPage", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-  res.render("newPage")
+app.get("/newPage/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const chapterId = req.params.chapterId
+  const chapters = await Chapter.chapterById(chapterId)
+  const chapter = chapters[0]
+  const courses = await Course.courseById(chapter.courseId)
+  const course = courses[0]
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
+  const isEducator = user.isEducator
+  if(isEducator){
+    res.render("newPage", {
+      chapter,
+      course
+    })
+  }
+})
+
+app.post("/newPage/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const chapterId = req.params.chapterId
+  const chapters = await Chapter.chapterById(chapterId)
+  const chapter = chapters[0]
+  const courses = await Course.courseById(chapter.courseId)
+  const course = courses[0]
+  const pageCount_initial = course.pageCount
+  const pageCount_final = pageCount_initial + 1
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
+  const isEducator = user.isEducator
+  try{
+    const pageName = req.body.pageName
+    const pageContent = req.body.pageContent
+    if(isEducator) {
+      await Page.addPage({
+        pageName: pageName,
+        pageContent: pageContent,
+        chapterId: chapterId,
+        courseId: course.id
+      })
+      await Course.update({
+        pageCount: pageCount_final,
+      },
+        {
+          where: {
+            id: course.id
+          }
+        }
+      )
+      res.redirect(`/chapter/${chapterId}`)
+    }
+  } catch(err) {
+      console.error("Error creating Page: ", err);
+  }
+})
+
+app.get("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const pageId = req.params.pageId
+  const pages = await Page.pageById(pageId)
+  const page = pages[0]
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
+  try{
+    if(user.isEducator){
+      res.render("updatePage", {
+        page,
+        isEducator
+      })
+    } else{
+      console.log("Your are not a authorized user to update the Page")
+      res.status(500).send("Error fetching page");
+    }
+  } catch(err) {
+    console.log("Error retrieving the page: ",err)
+    res.status(500).send("Error fetching page");
+  }
+})
+
+app.post("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) =>{
+  const pageId = req.params.pageId
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
+  const pageName = req.body.pageName
+  const pageContent = req.body.pageContent
+  try{
+    if(user.isEducator){
+      const existingPage = await Page.findOne({ where: { pageName } });
+      if (existingPage) {
+          return res.status(400).send("Page name already exists. Please choose a different name.");
+      }
+      await Page.update({
+        pageName,
+        pageDescription
+      },
+        {
+          where: {
+            id: pageId
+          }
+        }
+      )
+      res.redirect(`/page/${pageId}`)
+    } else{
+      console.log("Not an authorized person to update the chapter")
+      res.status(500).send("Error updating chapter")
+    }
+  } catch(err) {
+    console.log("Error editing chapter: ",err)
+    res.status(500).send("Error updating chapter")
+  }
+
 })
 
 module.exports = app
