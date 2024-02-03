@@ -11,7 +11,6 @@
 
 <body>
     <div>
-
         <div class="px-10 py-4 font-bold">
             <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course/<%= course.id %>"
                     class="px-1 underline">
@@ -23,31 +22,48 @@
                 </a>
             </p>
         </div>
-        <div class="py-5">
-            <div class="flex flex-wrap justify-center gap-4">
-                <div class="w-3/4 p-4 bg-gray-100 rounded-lg shadow-md">
-                    <div class="flex items-center justify-center mb-4">
-                        <h2 class="text-2xl font-semibold mb-2">
-                            <%= page.pageName %>
-                        </h2>
-                    </div>
-                    <div>
-                        <p class="text">
-                            <%= page.pageContent %>
-                        </p>
-                    </div>
-                    <div class="flex justify-end">
-                        <a href="/markAscompleted"
-                            class="text-white text-center px-5 py-2 rounded bg-teal-600 hover:bg-teal-800 mr-auto">Mark
-                            as
-                            completed</a>
-                        <a href="page"
-                            class="text-white text-center px-5 py-2 rounded bg-teal-600 hover:bg-teal-800 ml-auto">Next
-                            Page</a>
+        <% if(courseEnrolled || isEducator) { %>
+            <div class="py-5">
+                <div class="flex flex-wrap justify-center gap-4">
+                    <div class="w-3/4 p-4 bg-gray-100 rounded-lg shadow-md">
+                        <div class="flex items-center justify-center mb-4">
+                            <h2 class="text-2xl font-semibold mb-2">
+                                <%= page.pageName %>
+                            </h2>
+                        </div>
+                        <div>
+                            <p class="text">
+                                <%= page.pageContent %>
+                            </p>
+                        </div>
+                        <% if(isEducator) { %>
+                            <div class="flex justify-end">
+                                <a href="/updatePage/<%= page.id %>/edit"
+                                    class="text-white text-center px-5 py-2 rounded bg-blue-600 hover:bg-blue-800 mr-auto">Edit
+                                    Page</a>
+                                <form action="/page/<%= page.id %>/delete" method="post">
+                                    <button type="submit"
+                                        class="text-white text-center px-5 py-2 rounded bg-red-600 hover:bg-red-800 ml-auto">
+                                        Delete Page</button>
+                                </form>
+                            </div>
+                            <% } %>
+                                <% if(courseEnrolled) { %>
+                                    <div class="flex justify-between">
+                                        <form>
+                                            <button type="submit"
+                                                class="text-white text-center px-5 py-2 rounded bg-teal-600 hover:bg-teal-800 mr-auto">MarkAsComplete</button>
+                                        </form>
+                                        <form>
+                                            <button type="submit"
+                                                class="text-white text-center px-5 py-2 rounded bg-teal-600 hover:bg-teal-800 ml-auto">Next Page</button>
+                                        </form>
+                                    </div>
+                                    <% } %>
                     </div>
                 </div>
             </div>
-        </div>
+            <% } %>
     </div>
 </body>
 

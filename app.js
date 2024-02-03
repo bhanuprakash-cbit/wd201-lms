@@ -58,7 +58,8 @@ passport.deserializeUser((id, done) => {
     });
 });
 
-const { User, Course, Chapter, Page } = require("./models")
+const { User, Course, Chapter, Page, Enrollment } = require("./models");
+const { connected } = require('process');
 
 app.set("views", path.join(__dirname, "views"))
 
@@ -126,14 +127,38 @@ app.get("/signout", (req,res,next) => {
 app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const loggedInUser = req.user.id
   const isEducator = req.user.isEducator
-  const myCourses = await Course.myCourses(loggedInUser)
   const allCourses = await Course.allCourses()
-  res.render("home", {
-    title: "LMS Application",
-    myCourses,
-    allCourses,
-    isEducator,
-  })
+  try{
+    if(isEducator){
+      const myCourses = await Course.myCourses(loggedInUser)
+      res.render("home", {
+        title: "LMS Application",
+        myCourses,
+        allCourses,
+        isEducator,
+      })
+    } else{
+      const studentCourses = await Enrollment.coursesBystudentId({
+        studentId: loggedInUser
+      })
+      const enrolledCourses = []
+      for(var i=0; i<studentCourses.length; i++) {
+        const courses = await Course.courseById(studentCourses[i].courseId)
+        const course = courses[0]
+        enrolledCourses.push(course)
+      }
+      res.render("home", {
+        title: "LMS Application",
+        allCourses,
+        enrolledCourses,
+        isEducator
+      })
+    }
+  } catch(err) {
+    console.log("Failed to render home page",err)
+    res.send("Failed to render home page")
+  }
+  
 })
 
 app.get("/newCourse", async (req,res) => {
@@ -145,7 +170,7 @@ app.get("/newCourse", async (req,res) => {
     res.render("newCourse")
   } else {
     console.log("Your are not a authorized user to create the Course")
-    res.status(500).send("Error fetching course");
+    res.status(500).send("Your are not a authorized user to create the Course");
   }
 })
 
@@ -156,14 +181,21 @@ app.get("/course/:courseId", connectEnsureLogin.ensureLoggedIn(), async (req,res
     const courses = await Course.courseById(courseId)
     const course = courses[0]
     const loggedInUser = req.user.id
-    const users = await User.userById(loggedInUser)
-    const user = users[0]
-    const isEducator = user.isEducator
+    const isEducator = req.user.isEducator
     const allChapters = await Chapter.allChapters(courseId)
+    const coursesEnrolled = await Enrollment.courseEnrolled(loggedInUser, courseId)
+    const courseEnrolled = coursesEnrolled[0]
+    console.log("Course ID: ",courseEnrolled.courseId)
+    console.log("Student ID: ",courseEnrolled.studentId)
+    if(courseEnrolled) {
+      const isEnrolled = courseEnrolled.length
+      console.log(isEnrolled)
+    }
     res.render("course", {
       course,
       isEducator,
-      allChapters
+      allChapters,
+      courseEnrolled
     })
   } catch(err) {
     console.error("Error fetching course:", err);
@@ -242,23 +274,37 @@ app.post("/updateCourse/:courseId/edit", async (req,res) => {
 app.post("/course/:courseId/delete", async (req, res) => {
   const courseId = req.params.courseId;
   const loggedInUser = req.user.id
-  const myChapters = await Chapter.allChapters(courseId)
-  for(var i=0; i<myChapters.length; i++) {
-    const chapterId = myChapters[i].id
-    await Chapter.deleteChapter({
-      id: chapterId,
-      courseId: courseId
-    })
-  }
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
   try {
+    if(user.isEducator){
+      const myChapters = await Chapter.allChapters(courseId)
+      const coursePages = await Page.coursePages(courseId)
+      for(var i=0; i<coursePages.length; i++){
+        const pageId = coursePages[i].id
+        await Page.deletePage({
+          id: pageId
+        })
+      }
+      for(var i=0; i<myChapters.length; i++) {
+        const chapterId = myChapters[i].id
+        await Chapter.deleteChapter({
+          id: chapterId,
+          courseId: courseId
+        })
+      }
       await Course.deleteCourse({
           id: courseId,
           educatorId: loggedInUser
       });
       res.redirect("/home");
-  } catch (error) {
-      console.error("Error deleting course:", error);
+    } else{
+      console.log("Not an authorized user to delete the course")
       res.status(500).send("Error deleting course");
+    }
+  } catch (error) {
+    console.error("Error deleting course:", error);
+    res.status(500).send("Error deleting course");
   }
 });
 
@@ -271,21 +317,19 @@ app.get("/chapter/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,r
     const courses = await Course.courseById(chapter.courseId)
     const course = courses[0]
     const loggedInUser = req.user.id
-    const users = await User.userById(loggedInUser)
-    const user = users[0]
-    const isEducator = user.isEducator
+    const isEducator = req.user.isEducator
     const allPages = await Page.chapterPages(chapterId)
-    if(isEducator) {
-      res.render("chapter", {
+    const coursesEnrolled = await Enrollment.courseEnrolled(loggedInUser, course.id)
+    const courseEnrolled = coursesEnrolled[0]
+    console.log("Course ID: ",courseEnrolled.courseId)
+    console.log("Student ID: ",courseEnrolled.studentId)
+    res.render("chapter", {
         chapter,
         course,
         allPages,
-        isEducator
-      })
-    } else {
-      console.log("Your are not a authorized user to access the chapter")
-      res.status(500).send("Error fetching Chapter");
-    } 
+        isEducator,
+        courseEnrolled
+      }) 
   } catch(err) {
     console.error("Error fetching course:", err);
     console.log(err)
@@ -414,40 +458,43 @@ app.post("/chapter/:chapterId/delete", async (req, res) => {
   const course = courses[0]
   const chapterCount_initial = course.chapterCount
   const chapterCount_final = chapterCount_initial - 1
-  console.log("Initial chapter count: ",chapterCount_initial)
-  console.log("Final chapter count: ",chapterCount_final)
-  //const myChapters = await Chapter.allChapters(courseId)
-  // for(var i=0; i<myChapters.length; i++) {
-  //   const chapterId = myChapters[i].id
-  //   await Chapter.deleteChapter({
-  //     id: chapterId,
-  //     courseId: courseId
-  //   })
-  // }
   try {
-      await Chapter.deleteChapter({
-          id: chapterId,
-          courseId: chapter.courseId
-      });
+    const chapterPages = await Page.chapterPages(chapterId)
+    for(var i=0; i<chapterPages.length; i++) {
+      const pageId = chapterPages[i].id
+      const pageCount_initial = course.pageCount
+      const pageCount_final = pageCount_initial - 1
+      await Page.deletePage({
+        id: pageId
+      })
       await Course.update({
-        chapterCount: chapterCount_final,
+        pageCount: pageCount_final
       },
-        {
-          where: {
-            id: chapter.courseId
-          }
+      {
+        where: {
+          id: chapter.courseId
         }
-      )
-      res.redirect(`/course/${chapter.courseId}`);
+      })
+    }
+    await Chapter.deleteChapter({
+        id: chapterId,
+        courseId: chapter.courseId
+    });
+    await Course.update({
+      chapterCount: chapterCount_final,
+    },
+      {
+        where: {
+          id: chapter.courseId
+        }
+      }
+    )
+    res.redirect(`/course/${chapter.courseId}`);
   } catch (error) {
       console.error("Error deleting chapter: ", error);
       res.status(500).send("Error deleting chapter");
   }
 });
-
-app.get("/reports", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-  res.render("reports")
-})
 
 app.get("/page/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const pageId = req.params.pageId
@@ -458,21 +505,19 @@ app.get("/page/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) =>
   const chapters = await Chapter.chapterById(page.chapterId)
   const chapter = chapters[0]
   const loggedInUser = req.user.id
-  const users = await User.userById(loggedInUser)
-  const user = users[0]
-  const isEducator = user.isEducator
+  const isEducator = req.user.isEducator
+  const coursesEnrolled = await Enrollment.courseEnrolled(loggedInUser, course.id)
+  const courseEnrolled = coursesEnrolled[0]
+  console.log("Course ID: ",courseEnrolled.courseId)
+  console.log("Student ID: ",courseEnrolled.studentId)
   try{
-    if(isEducator){
-      res.render("page", {
-        page,
-        chapter,
-        course,
-        isEducator
-      })
-    }else{
-      console.log("Your are not a authorized user to update the Chapter")
-      res.status(500).send("Error fetching page");
-    }
+    res.render("page", {
+      page,
+      chapter,
+      course,
+      isEducator,
+      courseEnrolled
+    })
   } catch(err) {
     console.log("Error retrieving the page: ",err)
     res.status(500).send("Error fetching page");
@@ -536,17 +581,24 @@ app.post("/newPage/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,
   }
 })
 
-app.get("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+app.get("/updatePage/:pageId/edit", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const pageId = req.params.pageId
   const pages = await Page.pageById(pageId)
   const page = pages[0]
+  const courses = await Course.courseById(page.courseId)
+  const course = courses[0]
+  const chapters = await Chapter.chapterById(page.chapterId)
+  const chapter = chapters[0]
   const loggedInUser = req.user.id
   const users = await User.userById(loggedInUser)
   const user = users[0]
+  const isEducator = user.isEducator
   try{
-    if(user.isEducator){
+    if(isEducator){
       res.render("updatePage", {
         page,
+        chapter,
+        course,
         isEducator
       })
     } else{
@@ -559,7 +611,7 @@ app.get("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,r
   }
 })
 
-app.post("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) =>{
+app.post("/updatePage/:pageId/edit", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const pageId = req.params.pageId
   const loggedInUser = req.user.id
   const users = await User.userById(loggedInUser)
@@ -574,7 +626,7 @@ app.post("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,
       }
       await Page.update({
         pageName,
-        pageDescription
+        pageContent
       },
         {
           where: {
@@ -591,7 +643,67 @@ app.post("/updatePage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,
     console.log("Error editing chapter: ",err)
     res.status(500).send("Error updating chapter")
   }
+})
 
+app.post("/page/:pageId/delete", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const pageId = req.params.pageId
+  const pages = await Page.pageById(pageId)
+  const page = pages[0]
+  console.log(pageId)
+  console.log(page.id)
+  if(!page){
+    console.log("Paage not found")
+    res.send("Page you are trying to delete doesn't exists")
+  }
+  const courses = await Course.courseById(page.courseId)
+  const course = courses[0]
+  const pageCount_initial = course.pageCount
+  const pageCount_final = pageCount_initial - 1
+  const loggedInUser = req.user.id
+  const users = await User.userById(loggedInUser)
+  const user = users[0]
+  try{
+    if(user.isEducator){
+      await Page.deletePage({
+        id: pageId,
+      })
+      await Course.update({
+        pageCount: pageCount_final
+      },
+      {
+        where: {
+          id: page.courseId
+        }
+      }
+      )
+      res.redirect(`/chapter/${page.chapterId}`)
+    } else {
+      console.log("Not an authorized user to delete the page")
+      res.status(500).send("Error deleting page");
+    }
+  }catch(err) {
+    console.error("Error deleting chapter: ", err);
+    res.status(500).send("Error deleting page");
+  }
+})
+
+app.get("/reports", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
+  res.render("reports")
+})
+
+app.post("/enroll/:courseId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const courseId = req.params.courseId
+  const loggedInUser = req.user.id
+  try{
+    await Enrollment.enrollCourse({
+      studentId: loggedInUser,
+      courseId: courseId
+    })
+    res.redirect(`/course/${courseId}`)
+  } catch(err) {
+    console.log("Error enrolling to the course: ", err)
+    res.send("Error enrolling to the course")
+  }
 })
 
 module.exports = app

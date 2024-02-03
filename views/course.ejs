@@ -22,7 +22,7 @@
             <div class="flex flex-wrap justify-center gap-4">
                 <div class="w-auto p-4 rounded-lg shadow-md">
                     <div class="flex items-center justify-center mb-4">
-                        <h2 class="text-2xl font-semibold mb-2">
+                        <h2 class="text-2xl font-bold mb-2">
                             <%= course.courseName %>
                         </h2>
                     </div>
@@ -34,8 +34,9 @@
                             <p>Number of Chapters: <%= course.chapterCount %>
                             </p>
                         </div>
-                        <% if(!isEducator) { %>
+                        <% if(!courseEnrolled) { %>
                             <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
+                                <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:</p>
                                 <% for(var i=0; i<allChapters.length; i++) { %>
                                     <p class="py-1">
                                         <a
@@ -46,8 +47,10 @@
                                     <% } %>
                             </div>
                             <% } %>
-                                <% if(isEducator) {%>
+
+                                <% if(courseEnrolled) {%>
                                     <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
+                                        <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:</p>
                                         <% for(var i=0; i<allChapters.length; i++) { %>
                                             <p class="py-1">
                                                 <a href="/chapter/<%= allChapters[i].id %>"
@@ -57,32 +60,36 @@
                                             </p>
                                             <% } %>
                                     </div>
-                                    <div class="py-2">
-                                        <div class="py-2">
-                                            <p
-                                                class="flex justify-center text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block text-center">
-                                                <a href="/updateCourse/<%= course.id %>/edit">Edit
-                                                    Course</a>
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <form action="/course/<%= course.id %>/delete" method="POST">
-                                                <button type="submit"
-                                                    class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
-                                                    Delete Course
-                                                </button>
-                                            </form>
-
-                                        </div>
-                                    </div>
                                     <% } %>
-                                        <% if(!(isEducator)) { %>
+                                        <% if(isEducator) {%>
                                             <div class="py-2">
-                                                <button type="submit"
-                                                    class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Enroll
-                                                    to view Content</button>
+                                                <div class="py-2">
+                                                    <p
+                                                        class="flex justify-center text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block text-center">
+                                                        <a href="/updateCourse/<%= course.id %>/edit">Edit
+                                                            Course</a>
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <form action="/course/<%= course.id %>/delete" method="POST">
+                                                        <button type="submit"
+                                                            class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
+                                                            Delete Course
+                                                        </button>
+                                                    </form>
+
+                                                </div>
                                             </div>
                                             <% } %>
+                                                <% if(!(courseEnrolled)) { %>
+                                                    <div class="py-2">
+                                                        <form action="/enroll/<%= course.id %>">
+                                                            <button type="submit"
+                                                                class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Enroll
+                                                                to view Content</button>
+                                                        </form>
+                                                    </div>
+                                                    <% } %>
                     </div>
                 </div>
 

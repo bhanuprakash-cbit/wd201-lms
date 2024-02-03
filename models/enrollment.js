@@ -12,6 +12,25 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
+
+    static enrollCourse({ studentId, courseId }) {
+      return this.create({ studentId: studentId, courseId: courseId })
+    }
+
+    static coursesBystudentId({ studentId }) {
+      return this.findAll({
+        where: {
+          studentId: studentId
+        }
+      })
+    }
+
+    static courseEnrolled({ studentId, courseId }) {
+      return this.findAll({
+        studentId: studentId,
+        courseId: courseId
+      })
+    }
   }
   Enrollment.init({
     studentId: DataTypes.INTEGER,

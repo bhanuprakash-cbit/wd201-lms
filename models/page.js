@@ -42,12 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       })
     }
 
-    static async deletePage({ pageId, courseId, chapterId }) {
+    static async deletePage({ id }) {
       return this.destroy({
         where: {
-          id: pageId,
-          courseId: courseId,
-          chapterId: chapterId
+          id: id
         }
       })
     }
