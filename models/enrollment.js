@@ -25,10 +25,32 @@ module.exports = (sequelize, DataTypes) => {
       })
     }
 
+    static enrollmentBycourseId({ courseId }) {
+      return this.findAll({
+        where: {
+          courseId: courseId
+        }
+      })
+    }
+
     static courseEnrolled({ studentId, courseId }) {
       return this.findAll({
-        studentId: studentId,
-        courseId: courseId
+        where: {
+          studentId: studentId,
+          courseId: courseId
+        }
+      })
+    }    
+
+    static everything() {
+      return this.findAll()
+    }
+
+    static async deleteEnrollment({courseId}) {
+      return this.destroy({
+        where: {
+          courseId: courseId
+        }
       })
     }
   }

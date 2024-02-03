@@ -34,7 +34,7 @@
                             <p>Number of Chapters: <%= course.chapterCount %>
                             </p>
                         </div>
-                        <% if(!courseEnrolled) { %>
+                        <% if((!courseEnrolled) && (!isEducator)) { %>
                             <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
                                 <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:</p>
                                 <% for(var i=0; i<allChapters.length; i++) { %>
@@ -48,7 +48,7 @@
                             </div>
                             <% } %>
 
-                                <% if(courseEnrolled) {%>
+                                <% if(courseEnrolled || isEducator) {%>
                                     <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
                                         <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:</p>
                                         <% for(var i=0; i<allChapters.length; i++) { %>
@@ -81,7 +81,7 @@
                                                 </div>
                                             </div>
                                             <% } %>
-                                                <% if(!(courseEnrolled)) { %>
+                                                <% if((!courseEnrolled) && (!isEducator)) { %>
                                                     <div class="py-2">
                                                         <form action="/enroll/<%= course.id %>">
                                                             <button type="submit"

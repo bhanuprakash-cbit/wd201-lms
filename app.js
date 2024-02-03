@@ -126,6 +126,8 @@ app.get("/signout", (req,res,next) => {
 
 app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const loggedInUser = req.user.id
+  const everything = await Enrollment.everything()
+  console.log("Everything: ",everything)
   const isEducator = req.user.isEducator
   const allCourses = await Course.allCourses()
   try{
@@ -147,9 +149,14 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
         const course = courses[0]
         enrolledCourses.push(course)
       }
+      console.log(enrolledCourses.length)
+      console.log("Enrolled courses: ",enrolledCourses)
+      const filteredCourses = allCourses.filter(course => {
+        return !enrolledCourses.some(enrolledCourse => enrolledCourse.id === course.id);
+      })
       res.render("home", {
         title: "LMS Application",
-        allCourses,
+        allCourses: filteredCourses,
         enrolledCourses,
         isEducator
       })
@@ -176,21 +183,17 @@ app.get("/newCourse", async (req,res) => {
 
 app.get("/course/:courseId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const courseId = req.params.courseId
-  console.log(courseId)
   try{
     const courses = await Course.courseById(courseId)
     const course = courses[0]
     const loggedInUser = req.user.id
     const isEducator = req.user.isEducator
     const allChapters = await Chapter.allChapters(courseId)
-    const coursesEnrolled = await Enrollment.courseEnrolled(loggedInUser, courseId)
+    const coursesEnrolled = await Enrollment.courseEnrolled({
+      studentId: loggedInUser,
+      courseId: courseId
+    })
     const courseEnrolled = coursesEnrolled[0]
-    console.log("Course ID: ",courseEnrolled.courseId)
-    console.log("Student ID: ",courseEnrolled.studentId)
-    if(courseEnrolled) {
-      const isEnrolled = courseEnrolled.length
-      console.log(isEnrolled)
-    }
     res.render("course", {
       course,
       isEducator,
@@ -278,6 +281,10 @@ app.post("/course/:courseId/delete", async (req, res) => {
   const user = users[0]
   try {
     if(user.isEducator){
+      const enrollments = await Enrollment.enrollmentBycourseId(courseId)
+      for(var i=0; i<enrollments.length; i++) {
+        await Enrollment.deleteEnrollment(courseId)
+      }
       const myChapters = await Chapter.allChapters(courseId)
       const coursePages = await Page.coursePages(courseId)
       for(var i=0; i<coursePages.length; i++){
@@ -310,7 +317,6 @@ app.post("/course/:courseId/delete", async (req, res) => {
 
 app.get("/chapter/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const chapterId = req.params.chapterId
-  console.log(chapterId)
   try{
     const chapters = await Chapter.chapterById(chapterId)
     const chapter = chapters[0]
@@ -319,10 +325,11 @@ app.get("/chapter/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,r
     const loggedInUser = req.user.id
     const isEducator = req.user.isEducator
     const allPages = await Page.chapterPages(chapterId)
-    const coursesEnrolled = await Enrollment.courseEnrolled(loggedInUser, course.id)
+    const coursesEnrolled = await Enrollment.courseEnrolled({
+      studentId: loggedInUser,
+      courseId: course.id
+    })
     const courseEnrolled = coursesEnrolled[0]
-    console.log("Course ID: ",courseEnrolled.courseId)
-    console.log("Student ID: ",courseEnrolled.studentId)
     res.render("chapter", {
         chapter,
         course,
@@ -506,10 +513,11 @@ app.get("/page/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) =>
   const chapter = chapters[0]
   const loggedInUser = req.user.id
   const isEducator = req.user.isEducator
-  const coursesEnrolled = await Enrollment.courseEnrolled(loggedInUser, course.id)
+  const coursesEnrolled = await Enrollment.courseEnrolled({
+    studentId: loggedInUser,
+    courseId: course.id
+  })
   const courseEnrolled = coursesEnrolled[0]
-  console.log("Course ID: ",courseEnrolled.courseId)
-  console.log("Student ID: ",courseEnrolled.studentId)
   try{
     res.render("page", {
       page,
