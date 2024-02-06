@@ -45,40 +45,40 @@
                                         </a>
                                     </p>
                                     <% } %>
-                                        <% if(isChapterCompleted) { %>
-                                            <p>
-                                                <a
-                                                    class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Completed</a>
-                                            </p>
-                                            <% } %>
                             </div>
-                            <% } %>
-                                <% if(isEducator) { %>
-                                    <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
-                                        <% for(var i=0; i<allPages.length; i++) { %>
-                                            <p class="py-1">
-                                                <a href="/page/<%= allPages[i].id %>"
-                                                    class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">
-                                                    <%= allPages[i].pageName %>
-                                                </a>
-                                            </p>
-                                            <% } %>
-                                    </div>
-                                    <div class="py-2">
-                                        <p
-                                            class="flex justify-center text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block text-center">
-                                            <a href="/updateChapter/<%= chapter.id %>/edit">Edit
-                                                Chapter</a>
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <form action="/chapter/<%= chapter.id %>/delete" method="post">
-                                            <button type="submit"
-                                                class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
-                                                Delete Chapter</button>
-                                        </form>
-                                    </div>
+                            <% if(isChapterCompleted) { %>
+                                <p>
+                                    <a
+                                        class="text-white text-center bg-indigo-600 hover:bg-indigo-800 font-medium rounded mx-auto px-5 py-2 block">Completed</a>
+                                </p>
+                                <% } %>
                                     <% } %>
+                                        <% if(isEducator) { %>
+                                            <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
+                                                <% for(var i=0; i<allPages.length; i++) { %>
+                                                    <p class="py-1">
+                                                        <a href="/page/<%= allPages[i].id %>"
+                                                            class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">
+                                                            <%= allPages[i].pageName %>
+                                                        </a>
+                                                    </p>
+                                                    <% } %>
+                                            </div>
+                                            <div class="py-2">
+                                                <p
+                                                    class="flex justify-center text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block text-center">
+                                                    <a href="/updateChapter/<%= chapter.id %>/edit">Edit
+                                                        Chapter</a>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <form action="/chapter/<%= chapter.id %>/delete" method="post">
+                                                    <button type="submit"
+                                                        class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
+                                                        Delete Chapter</button>
+                                                </form>
+                                            </div>
+                                            <% } %>
                     </div>
                 </div>
             </div>

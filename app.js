@@ -346,7 +346,9 @@ app.get("/chapter/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,r
   try{
     if(courseEnrolled) {
       const completedChapters = courseEnrolled.completedChapters
-      for(var i=0; i<completedChapters; i++) {
+      console.log("Hey there 1 ",completedChapters)
+      console.log("Chapter id: ", chapterId)
+      for(var i=0; i<completedChapters.length; i++) {
         if(completedChapters[i] == chapterId){
           isChapterCompleted = true
         }
@@ -783,10 +785,6 @@ app.post("/page/:pageId/delete", connectEnsureLogin.ensureLoggedIn(), async (req
   }
 })
 
-app.get("/reports", connectEnsureLogin.ensureLoggedIn(), (req,res) => {
-  res.render("reports")
-})
-
 app.post("/enroll/:courseId", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   const courseId = req.params.courseId
   const loggedInUser = req.user.id
@@ -851,15 +849,27 @@ app.post("/markPageAsComplete/:pageId", connectEnsureLogin.ensureLoggedIn(), asy
           // console.log("Completed Pages: ",completedPages.length)
           completedPages = courseEnrolled.completedPages
           let completedChapters = courseEnrolled.completedChapters
-          proceed2 = chapterPages.filter(x => !completedPages.includes(x.id))
+          console.log("Hey there 2: ", completedChapters)
+          let proceed2 = []
+          for(var i=0; i<chapterPages.length; i++) {
+            let x = chapterPages[i].id
+            for(var j=0; j<completedPages.length; j++){
+              if(completedPages[j] == x){
+                proceed2.push(x)
+              }
+            }
+          }
+          //proceed2 = chapterPages.filter(x => !completedPages.includes(x.id))
           console.log("Proceed 2: ", proceed2)
-          if(proceed2.length == 0) {
+          if(proceed2.length == chapterPages.length) {
             let proceed3 = true
             for(var i=0; i<completedChapters.length; i++) {
               if(completedChapters[i] == page.chapterId) {
                 proceed3 = false
               }
             }
+            console.log("Proceed 3: ", proceed3)
+            console.log("Hey there 3: ", completedChapters)
             if(proceed3) {
               completedChapters.push(page.chapterId)
               await Enrollment.update({
@@ -876,6 +886,7 @@ app.post("/markPageAsComplete/:pageId", connectEnsureLogin.ensureLoggedIn(), asy
                 courseId: page.courseId
               })
               completedChapters = courseEnrolled.completedChapters
+              console.log("Hey there 4: ", completedChapters)
               if(completedChapters.length == chapterCount) {
                 await Enrollment.update({
                   completed: true
@@ -932,6 +943,33 @@ app.post("/nextPage/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,re
   } catch(err) {
     console.log("Failed to fetch the next page: ",err)
     res.send(err)
+  }
+})
+
+app.get("/reports", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const loggedInUser = req.user.id
+  const isEducator = req.user.isEducator
+  if(isEducator) {
+    const myCourses = await Course.myCourses(loggedInUser) || []
+    let enrollmentOfCourses = []
+    if(myCourses){
+      for(var i=0; i<myCourses.length; i++) {
+        courseId = myCourses[i].id
+        const enrollments = await Enrollment.enrollmentBycourseId({
+          courseId
+        })
+        enrollmentOfCourses.push(enrollments.length)
+      }
+    }
+    console.log("My courses: ",myCourses)
+    console.log("Enrollments: ",enrollmentOfCourses)
+    res.render("reports", {
+      myCourses,
+      enrollmentOfCourses
+    })    
+  } else {
+    console.log("Doesn't have access to view reports")
+    res.status(500).send("Not an authorized user to access Reports")
   }
 })
 
