@@ -93,8 +93,8 @@ app.get("/login", (req,res) => {
 })
 
 app.post("/users", async (req, res) => {
-  const hashedPwd = await bcrypt.hash("Virat@18", saltRounds)
-  // const hashedPwd = await bcrypt.hash(req.body.password, saltRounds)
+  // const hashedPwd = await bcrypt.hash("Virat@18", saltRounds)
+  const hashedPwd = await bcrypt.hash(req.body.password, saltRounds)
   // console.log(hashedPwd)
   // console.log(req.body)
   // console.log(req.body.firstName)
@@ -103,15 +103,15 @@ app.post("/users", async (req, res) => {
   // console.log(req.body.password)
   try {
     const user = await User.create({
-      firstName: "Virat",
-      lastName: "Kohli",
-      email: "virat@kohli.com",
-      password: hashedPwd,
-      isEducator: true
-      // firstName: req.body.firstName,
-      // lastName: req.body.lastName,
-      // email: req.body.email,
-      // password: hashedPwd
+      // firstName: "Virat",
+      // lastName: "Kohli",
+      // email: "virat@kohli.com",
+      // password: hashedPwd,
+      // isEducator: true
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hashedPwd
     });
     req.login(user, (err) => {
       if (err) {
