@@ -9,6 +9,9 @@ const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
 const LocalStrategy = require("passport-local");
+const bcrypt = require("bcrypt")
+
+const saltRounds = 10
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }))
@@ -34,14 +37,14 @@ passport.use(new LocalStrategy({
   usernameField: "email",
   passwordField: "password",
 },  (username, password, done) => {
-  User.findOne({ where: { email: username, password: password }})
+  User.findOne({ where: { email: username }})
     .then(async (user) => {
-      // const result = await bcrypt.compare(password, user.password)
-      // if (result) {
+      const result = await bcrypt.compare(password, user.password)
+      if (result) {
         return done(null, user);
-      // } else {
-      //   return done(null, false, { message: "Invalid password" })
-      // }
+      } else {
+        return done(null, false, { message: "Invalid password" })
+      }
     }).catch((err) => {
       return err;
     });
@@ -90,7 +93,8 @@ app.get("/login", (req,res) => {
 })
 
 app.post("/users", async (req, res) => {
-  // const hashedPwd = await bcrypt.hash(req.body.password, saltRounds)
+  // const hashedPwd = await bcrypt.hash("Virat@18", saltRounds)
+  const hashedPwd = await bcrypt.hash(req.body.password, saltRounds)
   // console.log(hashedPwd)
   // console.log(req.body)
   // console.log(req.body.firstName)
@@ -102,12 +106,12 @@ app.post("/users", async (req, res) => {
       // firstName: "Virat",
       // lastName: "Kohli",
       // email: "virat@kohli.com",
-      // password: "Virat@18",
+      // password: hashedPwd,
       // isEducator: true
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      password: req.body.password
+      password: hashedPwd
     });
     req.login(user, (err) => {
       if (err) {
@@ -306,13 +310,17 @@ app.post("/course/:courseId/delete", async (req, res) => {
       const enrollments = await Enrollment.enrollmentBycourseId({
         courseId
       })
+      console.log("Enrollments: " ,enrollments)
       if(enrollments) {
         for(var i=0; i<enrollments.length; i++) {
-          await Enrollment.deleteEnrollment(courseId)
+          await Enrollment.deleteEnrollment({courseId})
         }
       }
+      console.log("Done")
       const myChapters = await Chapter.allChapters(courseId)
       const coursePages = await Page.coursePages(courseId)
+      console.log("My Courses: " ,myChapters)
+      console.log("Course pages: " ,coursePages)
       if( myChapters || coursePages){
         for(var i=0; i<coursePages.length; i++){
           const pageId = coursePages[i].id
