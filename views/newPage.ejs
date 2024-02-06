@@ -22,13 +22,18 @@
         <div class="grid grid-cols-6">
             <div class="col-start-3 col-span-2 bg-white border-gray-300 border mr-4 rounded" style="padding: 20px">
                 <div class="flex items-center justify-center mb-4">
-                    <h2 class="text-2xl font-semibold mb-2 underline"><%= course.courseName %></h2>
+                    <h2 class="text-2xl font-semibold mb-2 underline">
+                        <%= course.courseName %>
+                    </h2>
                 </div>
                 <div class="flex items-center justify-center mb-4">
-                    <h2 class="text-2xl font-semibold mb-2 underline"><%= chapter.chapterName %></h2>
+                    <h2 class="text-2xl font-semibold mb-2 underline">
+                        <%= chapter.chapterName %>
+                    </h2>
                 </div>
                 <p class="text-center text-2xl font-bold">Create a new Page</p>
                 <form action="/newPage/<%= chapter.id %>" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <div class="py-3">
                         <label for="">Page Title</label>
                         <input type="text" name="pageName" id=""

@@ -28,8 +28,7 @@
                     </div>
                     <div class="space-y-2">
                         <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
-                            <p>
-                                Description: <%= course.courseDescription %>
+                            <p>Description: <%= course.courseDescription %>
                             </p>
                             <p>Number of Chapters: <%= course.chapterCount %>
                             </p>
@@ -47,7 +46,6 @@
                                     <% } %>
                             </div>
                             <% } %>
-
                                 <% if(courseEnrolled) {%>
                                     <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
                                         <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:</p>
@@ -93,6 +91,8 @@
                                                         <div>
                                                             <form action="/course/<%= course.id %>/delete"
                                                                 method="POST">
+                                                                <input type="hidden" name="_csrf"
+                                                                    value="<%= csrfToken %>">
                                                                 <button type="submit"
                                                                     class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
                                                                     Delete Course
@@ -105,6 +105,8 @@
                                                         <% if((!courseEnrolled) && (!isEducator)) { %>
                                                             <div class="py-2">
                                                                 <form action="/enroll/<%= course.id %>">
+                                                                    <input type="hidden" name="_csrf"
+                                                                        value="<%= csrfToken %>">
                                                                     <button type="submit"
                                                                         class="text-white bg-blue-600 hover:bg-blue-800 font-medium rounded px-5 py-2 mx-auto block">Enroll
                                                                         to view Content</button>
@@ -113,7 +115,6 @@
                                                             <% } %>
                     </div>
                 </div>
-
             </div>
         </div>
         <% if(isEducator) { %>

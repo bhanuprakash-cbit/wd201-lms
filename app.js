@@ -1,7 +1,9 @@
 const express = require('express');
 const app = express();
 const bodyParser = require("body-parser");
+var cookieParser = require("cookie-parser")
 const path = require("path")
+var csrf = require("tiny-csrf")
 
 const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
@@ -10,6 +12,8 @@ const LocalStrategy = require("passport-local");
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser("shh! some secret string"))
+app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]))
 
 app.set("view engine", "ejs");
 
@@ -67,19 +71,21 @@ app.set("views", path.join(__dirname, "views"))
 
 app.get("/", (req, res) => {
     res.render("index", {
-        title: "Home Page"
+        title: "Home Page",
     });
 });
 
 app.get("/signup", (req,res) => {
     res.render("signup", {
-        title: "Sign Up"
+        title: "Sign Up",
+        csrfToken: req.csrfToken(),
     })
 })
 
 app.get("/login", (req,res) => {
   res.render("login", {
-      title: "LogIn"
+      title: "LogIn",
+      csrfToken: req.csrfToken(),
   })
 })
 
@@ -115,7 +121,7 @@ app.post("/users", async (req, res) => {
   });
 
 app.post("/session", passport.authenticate('local', { failureRedirect: "/login" }), (req,res) => {
-  console.log(req.user)
+  //console.log(req.user)
   res.redirect("/home")
 })
 
@@ -162,7 +168,8 @@ app.get("/home", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
         allCourses: filteredCourses,
         enrolledCourses,
         progress,
-        isEducator
+        isEducator,
+        csrfToken: req.csrfToken(),
       })
     }
   } catch(err) {
@@ -175,7 +182,10 @@ app.get("/newCourse", async (req,res) => {
   //const loggedInUser = req.user.id
   //const isEducator = req.user.isEducator
   if(req.user.isEducator){
-    res.render("newCourse")
+    res.render("newCourse", {
+      title: "New Course",
+      csrfToken: req.csrfToken(),
+    })
   } else {
     console.log("Your are not a authorized user to create the Course")
     res.status(500).send("Your are not a authorized user to create the Course");
@@ -220,11 +230,13 @@ app.get("/course/:courseId", connectEnsureLogin.ensureLoggedIn(), async (req,res
   console.log("Course Completion status: ",isCourseCompleted)
   try { 
     res.render("course", {
+      title: "LMS Application",
       course,
       isEducator,
       allChapters,
       courseEnrolled,
-      isCourseCompleted
+      isCourseCompleted,
+      csrfToken: req.csrfToken(),
     })
   } catch(err) {
     console.error("Error fetching course:", err);
@@ -241,7 +253,9 @@ app.get("/updateCourse/:courseId/edit", async (req,res) => {
     //const isEducator = req.user.isEducator
     if(req.user.isEducator) {
       res.render("updateCourse", {
-        course
+        title: "Update Course",
+        course,
+        csrfToken: req.csrfToken(),
       })
     } else {
       console.log("Your are not a authorized user to update the Course")
@@ -288,6 +302,7 @@ app.post("/course/:courseId/delete", async (req, res) => {
   const loggedInUser = req.user.id
   try {
     if(req.user.isEducator){
+      console.log("Course id:",courseId)
       const enrollments = await Enrollment.enrollmentBycourseId({
         courseId
       })
@@ -313,6 +328,7 @@ app.post("/course/:courseId/delete", async (req, res) => {
           })
         }
       }
+      console.log("Second time: ",courseId)
       await Course.deleteCourse({
           id: courseId,
           educatorId: loggedInUser
@@ -357,12 +373,14 @@ app.get("/chapter/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,r
     // console.log("Completed chapter: ", completedChapters)
     // console.log("Chapter Completion status: ",isChapterCompleted)
     res.render("chapter", {
+      title: "LMS Application",
         chapter,
         course,
         allPages,
         isEducator,
         courseEnrolled,
-        isChapterCompleted
+        isChapterCompleted,
+        csrfToken: req.csrfToken(),
       }) 
   } catch(err) {
     console.error("Error fetching course:", err);
@@ -379,7 +397,9 @@ app.get("/chapter/:courseId/newChapter", connectEnsureLogin.ensureLoggedIn(), as
   const isEducator = req.user.isEducator
   if(isEducator) {
     res.render("newChapter", {
-      course
+      title: "New Chapter",
+      course,
+      csrfToken: req.csrfToken(),
     })
   } else {
     res.status(500).send("Not an authorized person to Create a Chapter")
@@ -435,8 +455,10 @@ app.get("/updateChapter/:chapterId/edit", connectEnsureLogin.ensureLoggedIn(), a
   try{  
     if(req.user.isEducator) {
       res.render("updateChapter", {
+        title: "Update Chapter",
         chapter,
-        course
+        course,
+        csrfToken: req.csrfToken(),
       })
     } else {
       console.log("Your are not a authorized user to update the Chapter")
@@ -604,12 +626,14 @@ app.get("/page/:pageId", connectEnsureLogin.ensureLoggedIn(), async (req,res) =>
   console.log("Page Completion status: ",isPageCompleted)
   try{
     res.render("page", {
+      title: "LMS Application",
       page,
       chapter,
       course,
       isEducator,
       courseEnrolled,
-      isPageCompleted
+      isPageCompleted,
+      csrfToken: req.csrfToken(),
     })
   } catch(err) {
     console.log("Error retrieving the page: ",err)
@@ -626,8 +650,10 @@ app.get("/newPage/:chapterId", connectEnsureLogin.ensureLoggedIn(), async (req,r
   //const isEducator = req.user.isEducator
   if(req.user.isEducator){
     res.render("newPage", {
+      title: "LMS Application",
       chapter,
-      course
+      course,
+      csrfToken: req.csrfToken(),
     })
   } else {
     res.status(500).send("You are not an authorized user to create a Page")
@@ -685,9 +711,11 @@ app.get("/updatePage/:pageId/edit", connectEnsureLogin.ensureLoggedIn(), async (
   try{
     if(req.user.isEducator){
       res.render("updatePage", {
+        title: "Update Page",
         page,
         chapter,
-        course
+        course,
+        csrfToken: req.csrfToken(),
       })
     } else{
       console.log("Your are not a authorized user to update the Page")
@@ -964,6 +992,7 @@ app.get("/reports", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
     console.log("My courses: ",myCourses)
     console.log("Enrollments: ",enrollmentOfCourses)
     res.render("reports", {
+      title: "Enrollment Reports", 
       myCourses,
       enrollmentOfCourses
     })    

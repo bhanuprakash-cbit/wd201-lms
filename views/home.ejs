@@ -128,6 +128,7 @@
                                             class="border border-gray-500 rounded bg-gray-300 flex text-xl justify-center text-blue-600 font-bold">View
                                             Course</a>
                                         <form action="/enroll/<%= allCourses[i].id %>" method="post">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                             <div
                                                 class="border border-gray-500 rounded bg-gray-300 flex text-xl justify-center text-blue-600 font-bold">
                                                 <button type="submit">Enroll</button>

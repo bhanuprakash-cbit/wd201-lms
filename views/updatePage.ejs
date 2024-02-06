@@ -25,6 +25,7 @@
             <div class="col-start-3 col-span-2 bg-white border-gray-300 border mr-4 rounded" style="padding: 20px">
                 <p class="text-center text-2xl font-bold">Updating Page</p>
                 <form action="/updatePage/<%= page.id %>/edit" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <div class="py-3">
                         <label for="">Page Title</label>
                         <input type="text" name="pageName" id=""

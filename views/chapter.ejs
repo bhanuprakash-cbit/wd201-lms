@@ -73,6 +73,7 @@
                                             </div>
                                             <div>
                                                 <form action="/chapter/<%= chapter.id %>/delete" method="post">
+                                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                                     <button type="submit"
                                                         class="text-white bg-red-600 hover:bg-red-800 font-medium rounded px-5 py-2 mx-auto block">
                                                         Delete Chapter</button>
