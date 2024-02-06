@@ -45,6 +45,12 @@
                                         </a>
                                     </p>
                                     <% } %>
+                                        <% if(isChapterCompleted) { %>
+                                            <p>
+                                                <a
+                                                    class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Completed</a>
+                                            </p>
+                                            <% } %>
                             </div>
                             <% } %>
                                 <% if(isEducator) { %>

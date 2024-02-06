@@ -15,7 +15,7 @@
             <p><a href="/home" class="px-1 underline">HomePage</a>-><a href="/course/<%= course.id %>"
                     class="px-1 underline">
                     <%= course.courseName %>
-                </a>-><a href="/chapter/<%= chapter.chapterName %>" class="px-1 underline">
+                </a>-><a href="/chapter/<%= chapter.id %>" class="px-1 underline">
                     <%= chapter.chapterName %>
                 </a>-><a href="/page/<%= page.id %>" class="px-1 underline">
                     <%= page.pageName %>
@@ -34,8 +34,7 @@
                     <div class="py-3">
                         <label for="">Content</label>
                         <input type="text" name="pageContent" id=""
-                            class="border border-gray-300 text-gray-900 rounded p-2 w-full" required
-                            placeholder="Updating Content should not match with older one">
+                            class="border border-gray-300 text-gray-900 rounded p-2 w-full" required>
                     </div>
                     <div class="py-3">
                         <button type="submit"

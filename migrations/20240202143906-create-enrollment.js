@@ -25,7 +25,7 @@ module.exports = {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
         defaultValue: []
       },
-      comepltedPages: {
+      completedPages: {
         type: Sequelize.ARRAY(Sequelize.INTEGER),
         defaultValue: []
       },

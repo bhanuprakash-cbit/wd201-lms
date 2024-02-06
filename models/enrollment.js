@@ -41,11 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       })
     }    
-
-    static everything() {
-      return this.findAll()
-    }
-
+    
     static async deleteEnrollment({courseId}) {
       return this.destroy({
         where: {
@@ -62,7 +58,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
       defaultValue: []
     },
-    comepltedPages: {
+    completedPages: {
       type: DataTypes.ARRAY(DataTypes.INTEGER),
       defaultValue: []
     }

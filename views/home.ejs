@@ -46,22 +46,22 @@
         <div class="py-2">
             <p class="text-black-900 py-2 text-3xl font-serif font-bold title-container flex justify-center">Courses</p>
             <div class="flex flex-wrap justify-center gap-4">
-                <% for(var i=0; i<myCourses.length; i++) { %>
+                <% for(var i=0; i<allCourses.length; i++) { %>
                     <div class="w-64 p-4 bg-gray-100 rounded-lg shadow-md">
                         <div class="flex items-center justify-center mb-4">
-                            <h2 class="text-2xl font-semibold mb-2"><a href="/course">
-                                    <%= myCourses[i].courseName %>
+                            <h2 class="text-2xl font-semibold mb-2"><a>
+                                    <%= allCourses[i].courseName %>
                                 </a></h2>
                         </div>
                         <div class="space-y-2">
                             <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
                                 <p>
-                                    Description: <%= myCourses[i].courseDescription %>
+                                    Description: <%= allCourses[i].courseDescription %>
                                 </p>
-                                <p>Number of Chapters: <%= myCourses[i].chapterCount %>
+                                <p>Number of Chapters: <%= allCourses[i].chapterCount %>
                                 </p>
                             </div>
-                            <a href="/course/<%= myCourses[i].id %>"
+                            <a href="/course/<%= allCourses[i].id %>"
                                 class="border border-gray-500 rounded bg-gray-300 flex text-xl justify-center text-blue-600 font-bold">View
                                 Course</a>
                         </div>
@@ -95,6 +95,10 @@
                                         <a href="/course/<%= enrolledCourses[i].id %>"
                                             class="border border-gray-500 rounded bg-gray-300 flex text-xl justify-center text-blue-600 font-bold">View
                                             Course</a>
+                                    </div>
+                                    <p class="text-xl text-center">Progress: </p>
+                                    <div class="border border-gray-500 rounded text-center bg-green-200 w-auto">
+                                        <div class="bg-green-500" style="width: <%= progress[i] %>%;">&nbsp; <%= progress[i] %>%</div>
                                     </div>
                                 </div>
                                 <% } %>

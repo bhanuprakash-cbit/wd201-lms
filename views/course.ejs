@@ -48,7 +48,7 @@
                             </div>
                             <% } %>
 
-                                <% if(courseEnrolled || isEducator) {%>
+                                <% if(courseEnrolled) {%>
                                     <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
                                         <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:</p>
                                         <% for(var i=0; i<allChapters.length; i++) { %>
@@ -59,9 +59,27 @@
                                                 </a>
                                             </p>
                                             <% } %>
+                                                <% if(isCourseCompleted) { %>
+                                                    <p>
+                                                        <a
+                                                            class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">Completed</a>
+                                                    </p>
+                                                    <% } %>
                                     </div>
                                     <% } %>
                                         <% if(isEducator) {%>
+                                            <div class="border text-xl text-gray-600 border-gray-500 p-2 rounded-md">
+                                                <p class="font-bold text-xl text-center text-gray-600 py-2">Chapters:
+                                                </p>
+                                                <% for(var i=0; i<allChapters.length; i++) { %>
+                                                    <p class="py-1">
+                                                        <a href="/chapter/<%= allChapters[i].id %>"
+                                                            class="text-white text-center bg-teal-600 hover:bg-teal-800 font-medium rounded mx-auto px-5 py-2 block">
+                                                            <%= allChapters[i].chapterName %>
+                                                        </a>
+                                                    </p>
+                                                    <% } %>
+                                            </div>
                                             <div class="py-2">
                                                 <div class="py-2">
                                                     <p
