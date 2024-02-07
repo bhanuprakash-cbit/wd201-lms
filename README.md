@@ -3,4 +3,4 @@ Student creates an account through sign up and login to view available courses. 
 
 Educator credentials:
 Email: virat@kholi.com
-Passwoed: Virat@18
+Password: Virat@18
