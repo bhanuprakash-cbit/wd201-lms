@@ -93,8 +93,8 @@ app.get("/login", (req,res) => {
 })
 
 app.post("/users", async (req, res) => {
-  // const hashedPwd = await bcrypt.hash("Virat@18", saltRounds)
-  const hashedPwd = await bcrypt.hash(req.body.password, saltRounds)
+  const hashedPwd = await bcrypt.hash("Virat@18", saltRounds)
+  // const hashedPwd = await bcrypt.hash(req.body.password, saltRounds)
   // console.log(hashedPwd)
   // console.log(req.body)
   // console.log(req.body.firstName)
@@ -103,15 +103,15 @@ app.post("/users", async (req, res) => {
   // console.log(req.body.password)
   try {
     const user = await User.create({
-      // firstName: "Virat",
-      // lastName: "Kohli",
-      // email: "virat@kohli.com",
-      // password: hashedPwd,
-      // isEducator: true
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: hashedPwd
+      firstName: "Virat",
+      lastName: "Kohli",
+      email: "virat@kohli.com",
+      password: hashedPwd,
+      isEducator: true
+      // firstName: req.body.firstName,
+      // lastName: req.body.lastName,
+      // email: req.body.email,
+      // password: hashedPwd
     });
     req.login(user, (err) => {
       if (err) {
@@ -1010,4 +1010,45 @@ app.get("/reports", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   }
 })
 
+<<<<<<< HEAD
 module.exports = app
+=======
+app.get("/changePassword", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  try {
+    res.render("updatePassword", {
+      title: "Update Password",
+      csrfToken: req.csrfToken(),
+    })
+  } catch(err) {
+    console.error("Error rendering updating password page:", err);
+    res.status(500).send("Error rendering updating password page");
+  }
+})
+
+app.post("/updatePassword", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
+  const loggedInUser = req.user.id
+  const email = req.body.email
+  const password = req.body.password
+  try {
+    const user = await User.findOne({ where: { email: email } });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    const hashedPwd = await bcrypt.hash(password, saltRounds);
+    await User.update({ 
+      password: hashedPwd
+     },
+      { where: { 
+        id: loggedInUser,
+        email: email 
+      } 
+    });
+    res.redirect("/home")    
+  } catch(err) {
+    console.error("Error updating password:", err);
+    res.status(500).send("Error updating password");
+  }
+})
+
+module.exports = app
+>>>>>>> beebe03 (Updated Change pswd Method)
