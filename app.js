@@ -1010,9 +1010,6 @@ app.get("/reports", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   }
 })
 
-<<<<<<< HEAD
-module.exports = app
-=======
 app.get("/changePassword", connectEnsureLogin.ensureLoggedIn(), async (req,res) => {
   try {
     res.render("updatePassword", {
@@ -1051,4 +1048,3 @@ app.post("/updatePassword", connectEnsureLogin.ensureLoggedIn(), async (req,res)
 })
 
 module.exports = app
->>>>>>> beebe03 (Updated Change pswd Method)
